@@ -2,6 +2,8 @@
 """This module defines a base class for all models in our hbnb clone"""
 import uuid
 from datetime import datetime
+from models import storage
+import json
 
 
 class BaseModel:
@@ -21,6 +23,16 @@ class BaseModel:
                                                      '%Y-%m-%dT%H:%M:%S.%f')
             del kwargs['__class__']
             self.__dict__.update(kwargs)
+
+            """if 'created_at' in kwargs:
+                kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
+                                                          '%Y-%m-%dT%H:%M:%S.%f')
+            if 'updated_at' in kwargs:
+                kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
+                                                          '%Y-%m-%dT%H:%M:%S.%f')
+            if '__class__' in kwargs:
+                del kwargs['__class__']
+            self.__dict__.update(kwargs)"""
 
     def __str__(self):
         """Returns a string representation of the instance"""

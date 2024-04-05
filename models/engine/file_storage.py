@@ -11,6 +11,7 @@ class FileStorage:
     def all(self):
         """Returns a dictionary of models currently in storage"""
         return FileStorage.__objects
+        print("PRINT>>>", FileStorage.__objects)
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -21,9 +22,12 @@ class FileStorage:
         with open(FileStorage.__file_path, 'w') as f:
             temp = {}
             temp.update(FileStorage.__objects)
+            print("FILESTORAE", FileStorage.__objects)
             for key, val in temp.items():
                 temp[key] = val.to_dict()
             json.dump(temp, f)
+            print("SOMETHING STORE HERE", temp)
+
 
     def reload(self):
         """Loads storage dictionary from file"""

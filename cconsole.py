@@ -117,7 +117,7 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_create(self, args):
-        if not args:
+        """if not args:
             print("** class name missing **")
             return
         elif args not in HBNBCommand.classes:
@@ -129,12 +129,11 @@ class HBNBCommand(cmd.Cmd):
 
         new_instance = HBNBCommand.classes[args]()
         storage.save()
-        print(new_instance)
         print(new_instance.id)
-        storage.save()
+        storage.save()"""
 
-    """def do_create(self, args):
-        Create an object of any class with given parameters
+    def do_create(self, args):
+        """Create an object of any class with given parameters"""
         if not args:
             print("** class name missing **")
             return
@@ -183,15 +182,15 @@ class HBNBCommand(cmd.Cmd):
                     continue
 
             params[key] = value
-        print(params)
+
         kwargs.update(params)
-        print(kwargs)
 
         # Create an instance of the specified class with given parameters
         new_instance = HBNBCommand.classes[class_name](**kwargs)
+        #print("Object created:", new_instance)
         storage.save()
+        #print("Object saved:", new_instance)
         print(new_instance.id)
-        storage.save()"""
 
     def help_create(self):
         """ Help information for the create method """
@@ -273,14 +272,15 @@ class HBNBCommand(cmd.Cmd):
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in storage.all().items():
+                print(v)
                 if k.split('.')[0] == args:
                     print_list.append(str(v))
         else:
-            for k, v in storage._FileStorage__objects.items():
+            for k, v in storage.all().items():
+                print(v)
                 print_list.append(str(v))
 
-        print(print_list)
 
     def help_all(self):
         """ Help information for the all command """

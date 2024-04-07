@@ -1,59 +1,20 @@
 #!/usr/bin/python3
-"""Fabric script to deploy a .tgz archive to web servers"""
-
-from fabric.api import env, put, run
-from os.path import exists
+""" Used to deploy with fabric  """
+from fabric import task, Connection, Config, env
 from datetime import datetime
+import os
 
-# Replace 'xx-web-01', 'xx-web-02' with your server IPs
+# Define Fabric environment variables
 env.hosts = ['107.22.142.174', '3.85.1.94']
+env.user = 'ubuntu'
+env.key_filename = '/root/.ssh/school'
 
-
-def do_deploy(archive_path):
-    """Distributes an archive to web servers"""
-    if not exists(archive_path):
-        return False
-
-    try:
-        # Upload the archive to /tmp/ directory on the server
-        put(archive_path, '/tmp/')
-
-        # Extract archive to /data/web_static/releases/<archive_filename
-        # without extension>/
-        archive_filename = archive_path.split('/')[-1]
-        folder_name = archive_filename.split('.')[0]
-        run('mkdir -p /data/web_static/releases/{}/'.format(folder_name))
-        run('tar -xzf /tmp/{} -C /data/web_static/releases/{}/'
-            .format(archive_filename, folder_name))
-
-        # Remove the uploaded archive from the server
-        run('rm /tmp/{}'.format(archive_filename))
-
-        # Move the contents of the extracted folder to the releases folder
-        run('mv /data/web_static/releases/{}/web_static/*'
-            '/data/web_static/releases/{}/'.format(folder_name, folder_name))
-
-        # Remove the now empty web_static folder
-        run('rm -rf /data/web_static/releases/{}/web_static'
-            .format(folder_name))
-
-        # Update the symbolic link to the new version
-        run('rm -rf /data/web_static/current')
-        run('ln -s /data/web_static/releases/{}/ /data/web_static/current'
-            .format(folder_name))
-
-        print("New version deployed!")
-        return True
-    except Exception as e:
-        print("Error deploying archive:", e)
-        return False
-
-
-def do_pack():
+@task
+def do_pack(c):
     """Generates a .tgz archive from the web_static folder"""
     try:
         # Create the versions directory if it doesn't exist
-        local("mkdir -p versions")
+        c.local("mkdir -p versions")
 
         # Get the current date and time
         now = datetime.now()
@@ -61,9 +22,8 @@ def do_pack():
 
         # Create the archive filename with the timestamp
         archive_name = "versions/web_static_{}.tgz".format(timestamp)
-
         # Create the .tgz archive from the web_static folder
-        local("tar -cvzf {} web_static".format(archive_name))
+        c.local("tar -cvzf {} web_static".format(archive_name))
 
         # Return the archive path if successful
         return archive_name
@@ -71,17 +31,48 @@ def do_pack():
         print("Error packing web_static:", e)
         return None
 
-
-def deploy():
-    """Creates and distributes an archive to web servers"""
-    archive_path = do_pack()
-    if not archive_path:
+@task
+def do_deploy(c, archive_path):
+    """Deploys an archive to the web servers"""
+    if not os.path.exists(archive_path):
+        print(f"Archive {archive_path} not found. Deployment aborted.")
         return False
 
-    return do_deploy(archive_path)
+    try:
+        # Upload the archive to the /tmp/ directory of the web server
+        c.put(archive_path, '/tmp/')
 
+        # Uncompress the archive to the folder
+        folder_name = os.path.splitext(os.path.basename(archive_path))[0]
+        c.run('mkdir -p /data/web_static/releases/{}/'.format(folder_name))
+        c.run('tar -xzf /tmp/{} -C /data/web_static/releases/{}/'.format(os.path.basename(archive_path), folder_name))
 
-if __name__ == "__main__":
-    # Example usage: fab -f 3-deploy_web_static.py deploy -i
-    # my_ssh_private_key -u ubuntu
-    pass
+        # Remove the archive from the web server
+        c.run('rm /tmp/{}'.format(os.path.basename(archive_path)))
+
+        # Move the contents to the correct location
+        c.run('mv /data/web_static/releases/{}/web_static/* /data/web_static/releases/{}/'.format(folder_name, folder_name))
+        c.run('rm -rf /data/web_static/releases/{}/web_static'.format(folder_name))
+
+        # Update the symbolic link
+        c.run('rm -rf /data/web_static/current')
+        c.run('ln -s /data/web_static/releases/{}/ /data/web_static/current'.format(folder_name))
+
+        print("New version deployed!")
+        return True
+    except Exception as e:
+        print("Error deploying:", e)
+        return False
+
+@task
+def deploy(c):
+    """Deploys the web_static project"""
+    # Call do_pack and store the archive path
+    archive_path = do_pack(c)
+    if not archive_path:
+        print("No archive created. Deployment aborted.")
+        return False
+
+    # Call do_deploy with the archive path
+    return do_deploy(c, archive_path)
+

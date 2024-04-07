@@ -1,5 +1,5 @@
 # 101-setup_web_static.pp
-
+# Task 0 redone using puppet
 # Ensure Nginx is installed
 package { 'nginx':
   ensure => installed,
@@ -41,7 +41,13 @@ file { '/data/web_static/releases/test/index.html':
   ensure  => file,
   owner   => 'ubuntu',
   group   => 'ubuntu',
-  content => '<html><head></head><body>Holberton School</body></html>',
+  content => '<html>
+                <head>
+                </head>
+                <body>
+                  Holberton School
+                </body>
+              </html>',
 }
 
 # Create symbolic link

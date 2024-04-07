@@ -5,7 +5,11 @@ from fabric.api import local
 from datetime import datetime
 
 def do_pack():
-    """Generates a .tgz archive from the web_static folder"""
+    """Generates a .tgz archive from the web_static folder
+
+    Returns:
+        str: Archive path if successful, None otherwise
+    """
     try:
         # Create the versions directory if it doesn't exist
         local("mkdir -p versions")

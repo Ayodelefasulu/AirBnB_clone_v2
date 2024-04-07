@@ -30,15 +30,17 @@ def do_deploy(archive_path):
         run('rm /tmp/{}'.format(archive_filename))
 
         # Move the contents of the extracted folder to the releases folder
-        run('mv /data/web_static/releases/{}/web_static/* /data/web_static/releases/{}/'
-            .format(folder_name, folder_name))
+        run('mv /data/web_static/releases/{}/web_static/* '
+            '/data/web_static/releases/{}/'.format(folder_name, folder_name))
 
         # Remove the now empty web_static folder
-        run('rm -rf /data/web_static/releases/{}/web_static'.format(folder_name))
+        run('rm -rf /data/web_static/releases/{}/web_static'
+            .format(folder_name))
 
         # Update the symbolic link to the new version
         run('rm -rf /data/web_static/current')
-        run('ln -s /data/web_static/releases/{}/ /data/web_static/current'.format(folder_name))
+        run('ln -s /data/web_static/releases/{}/ /data/web_static/current'
+            .format(folder_name))
 
         print("New version deployed!")
         return True
@@ -46,7 +48,8 @@ def do_deploy(archive_path):
         print("Error deploying archive:", e)
         return False
 
-if __name__ == "__main__":
-    # Example usage: fab -f 2-do_deploy_web_static.py do_deploy:archive_path=versions/web_static_20170315003959.tgz -i my_ssh_private_key -u ubuntu
-    pass
 
+if __name__ == "__main__":
+    # Usage: fab -f 2-do_deploy_web_static.py do_deploy:archive_path=versions
+    # /web_static_20170315003959.tgz -i my_ssh_private_key -u ubuntu
+    pass

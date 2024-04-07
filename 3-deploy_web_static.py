@@ -6,7 +6,7 @@ from os.path import exists
 from datetime import datetime
 
 # Replace 'xx-web-01', 'xx-web-02' with your server IPs
-env.hosts = ['xx-web-01', 'xx-web-02']
+env.hosts = ['107.22.142.174', '3.85.1.94']
 
 
 def do_deploy(archive_path):

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 """Fabric script:deploys .tgz archive to web servers & clean up old archives"""
 
 from fabric.api import env, put, run, local

@@ -4,8 +4,6 @@
 from fabric.api import env, put, run
 from os.path import exists
 from datetime import datetime
-from fabric.contrib.files import exists as fabric_exists
-from fabric.operations import local
 
 # Replace 'xx-web-01', 'xx-web-02' with your server IPs
 env.hosts = ['107.22.142.174', '3.85.1.94']
@@ -17,7 +15,8 @@ def do_pack():
         now = datetime.now()
         formatted_time = now.strftime("%Y%m%d%H%M%S")
         local("mkdir -p versions")
-        local("tar -czvf versions/web_static_{}.tgz web_static".format(formatted_time))
+        local("tar -czvf versions/web_static_{}.tgz web_static"
+            .format(formatted_time))
         return "versions/web_static_{}.tgz".format(formatted_time)
     except Exception as e:
         print("Error packing web_static:", e)
